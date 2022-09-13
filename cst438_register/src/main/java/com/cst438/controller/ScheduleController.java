@@ -66,7 +66,7 @@ public class ScheduleController {
 
 	
 	@PostMapping("/schedule")
-	@Transactional
+	@Transactional                        //Argument is JSON data for CourseDTO = { "course_id": 30157}
 	public ScheduleDTO.CourseDTO addCourse( @RequestBody ScheduleDTO.CourseDTO courseDTO  ) { 
 
 		String student_email = "test@csumb.edu";   // student's email 
