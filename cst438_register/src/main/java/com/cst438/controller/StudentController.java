@@ -20,6 +20,23 @@ public class StudentController {
 	@Autowired
 	StudentRepository studentRepository;
 	
+	//For Postman testing enter: http://localhost:8080/student/1   to return student with id of 1
+	//This endpoint currently checks if a student exists, I need to add logic to add student if they don't
+	//I also need the search to be based off of email address not student_id
+	@GetMapping("/student/{student_id}")
+	public StudentDTO getStudent(@PathVariable("student_id") int id) {
+		Student s = studentRepository.findById(id).get();
+		
+		if(s == null) {
+			//TODO add logic to add student here if they do not exist
+			//throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student does not exist"); //testing
+		}
+		
+		StudentDTO sto = new StudentDTO(s.getName(), s.getEmail(), s.getStatusCode(),s.getStatus());
+		//StudentDTO sto = new StudentDTO();
+		return sto;
+	}
+	
 	
 	@PostMapping("/student/holds")
 	@Transactional       //Argument is JSON data for studentDTO. example: { "student_id": 1, "statusCode": -1}
