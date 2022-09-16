@@ -4,12 +4,11 @@ package com.cst438.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -20,44 +19,53 @@ import com.cst438.domain.StudentRepository;
 
 @RestController
 public class StudentController {
-	boolean status = true;
+	
 	@Autowired
 	StudentRepository studentRepository;
 	
-	//@Autowired
-	//Student st;
-	
-
+	//For Postman testing enter: http://localhost:8080/student/1   to return student with id of 1
+	//This endpoint currently checks if a student exists, I need to add logic to add student if they don't
+	//I also need the search to be based off of email address not student_id
 	@GetMapping("/student/{student_id}")
 	public StudentDTO getStudent(@PathVariable("student_id") int id) {
 		Student s = studentRepository.findById(id).get();
 		
 		if(s == null) {
-			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, " 7777777 Student does not exist 777777777");
+			
+			//TODO add logic to add student here if they do not exist
+			//throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student does not exist"); //testing
 		}
 		
-		StudentDTO sto = new StudentDTO(s.getName(), s.getEmail(), s.getStatusCode(),s.getStatus());
-		
-		//TODO
+		StudentDTO sto = new StudentDTO(s.getEmail(), s.getName(), s.getStatusCode(),s.getStatus());
+		//StudentDTO sto = new StudentDTO();
 		return sto;
 	}
-		
 	
-	/*
-	public StudentDTO getStudent(@PathVariable("id") int id) {
-		Student student = studentRepository.findById(id).get();
-		if (student == null) {
-			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "77777777 Student does not exist 77777777777");
+	@PostMapping("/student/add")
+	public StudentDTO getStudent(@RequestBody StudentDTO sto) {
+		Student s = studentRepository.findByEmail(sto.email); // (sto.email).get();
+		
+		if(s == null) {
+			//TODO add logic to add student here if they do not exist
+			//throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, "Student does not exist"); //testing
+			s = new Student();
+			s.setEmail(sto.email);
+			s.setName(sto.name);
+			s.setStatus(sto.status);
+			s.setStatusCode(sto.statusCode);
+			studentRepository.save(s);
+			//Student newStudent = new Student(sto.student_id, sto.name, sto.status, sto.statusCode);
+			return sto;
 		}
-		//StudentDTO s = new StudentDTO();
-		//copy student data to studentDTO
-		return ;
+		else {
+			throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, s.getName() + " Student exists");
+		}
 	}
-	*/
+	
 	
 	@PostMapping("/student/holds")
 	@Transactional       //Argument is JSON data for studentDTO. example: { "student_id": 1, "statusCode": -1}
-	public StudentDTO placeOrRemoveHold( @RequestBody StudentDTO studentDTO  ) { 
+	public void placeHold( @RequestBody StudentDTO studentDTO  ) { 
 		
 		String student_email = studentDTO.email;   // student's email 
 		
@@ -74,32 +82,23 @@ public class StudentController {
 		   3. value > 1 or value < 0 
 		 */
 		if (student== null ){
-			    status = false;
 				throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, " Student does not exist");
 		}
 	    if( (student.getStatusCode() == studentDTO.statusCode) && studentDTO.statusCode == 0){
-	    	status = false;
 	    	throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, student.getName() + " Student has no holds");
 		}
 	    if( (student.getStatusCode() == studentDTO.statusCode) && studentDTO.statusCode == 1){
-	    	status = false;
 	    	throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, student.getName() + " Student already on hold");
 		}
 	    if( studentDTO.statusCode > 1){
-	    	status = false;
 	    	throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, student.getName() + " Invalid entry, values 1 or 0");
 		}
 	    if( studentDTO.statusCode < 0){
-	    	status = false;
 	    	throw  new ResponseStatusException( HttpStatus.BAD_REQUEST, student.getName() + " Invalid entry, values 1 or 0");
 		}
 	    else {
 	    	student.setStatusCode(studentDTO.statusCode);
-	    	status = true;
-	    	return studentDTO;
 	    }
-	    
-	    //return status;
 		
 	}
 	
