@@ -1,10 +1,12 @@
 package com.cst438;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
@@ -33,7 +35,6 @@ import com.cst438.domain.Student;
 import com.cst438.domain.StudentDTO;
 import com.cst438.controller.StudentController;
 import com.cst438.domain.StudentRepository;
-import com.cst438.service.GradebookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 //In a simulated environment, the only classes loaded, are the classes specified
@@ -42,86 +43,66 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest
 public class TestStudentController {
-	
-	static final String URL = "http://localhost:8080";
-	public static final int TEST_COURSE_ID = 40442;
-	public static final String TEST_STUDENT_EMAIL = "test@csumb.edu";
-	public static final String TEST_STUDENT_NAME  = "test";
-	public static final int TEST_YEAR = 2021;
-	public static final String TEST_SEMESTER = "Fall";
 
 	@MockBean
 	StudentRepository studentRepository;
 	
+	public static final int TEST_STUDENT_ID = 0;
+	public static final String TEST_STUDENT_NAME  = "test";
+	public static final String TEST_STUDENT_EMAIL = "test@csumb.edu";
+	public static final String TEST_STATUS = "null";
+	public static final int TEST_STATUS_CODE = 1;
+	public static final int TEST_STATUS_REMOVE_CODE = 0;
+	
 	@Autowired
 	private MockMvc mvc;
-	@Test
 	
+	//Test to see if student can be placed on hold
+	@Test
 	public void checkHold() throws Exception {
 		
+	  StudentDTO sto = new StudentDTO(TEST_STUDENT_ID, TEST_STUDENT_NAME, TEST_STUDENT_EMAIL, TEST_STATUS, TEST_STATUS_CODE);
+		
+		
 	  MockHttpServletResponse response = 
-			  mvc.perform(get("/student/1").accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
-		//Check if you got a new problem
-		assertEquals(200, response.getStatus());
-	  /*
-	  Student student = new Student();
-	  student.setEmail(TEST_STUDENT_EMAIL);
-	  student.setName(TEST_STUDENT_NAME);
-	  student.setStatusCode(0);
-	  student.setStudent_id(1);
-	  //given(courseRepository.findById(TEST_COURSE_ID)).willReturn(Optional.of(course));
-	  given(studentRepository.findById(1)).willReturn(Optional.of(student));
-	  */
-		
-/*		
-	  StudentDTO s = 
-				
-				fromJsonString(response.getContentAsString(),StudentDTO.class);
-		
-		response = 
-		  mvc.perform(post("/placeOrRemoveHold").content(asJsonString(s)).contentType(MediaType.APPLICATION_JSON).
-				                      accept(MediaType.APPLICATION_JSON)).andReturn().getResponse();
-		//Check if you post the result
-		assertEquals(200, response.getStatus());
-		
-*/	  
-		
-		
-	  // then do an http post request with body of courseDTO as JSON
-	  /*
-	  response = mvc.perform(
-			MockMvcRequestBuilders
-				.get("/student/1")
-				.accept(MediaType.APPLICATION_JSON))
-			  .andReturn().getResponse();
-			
-		// verify that return status = OK (value 200)
-	  	assertEquals(200, response.getStatus());
-	  	
-	  	*/
-	  
-	  /*
-	  	response = mvc.perform(
-	  		MockMvcRequestBuilders
-	  			.post("/student/holds")
-	  			.accept(MediaType.APPLICATION_JSON)
-	  			//.content(asJsonString(student_1))
-	  			.contentType(MediaType.APPLICATION_JSON))
-	  		.andReturn().getResponse();
-	  				
-	  	// verify that return status = OK (value 200)
-	    assertEquals(200, response.getStatus());  
-	  	//assertEquals(200, response.getStatus());
-	  	//assertTrue(true);
-	    
-	    //verify(studentRepository).save(any(Student.class));
-	  	Student s = 
-				
-				fromJsonString(response.getContentAsString(), Student.class);
-		
-		assertTrue(s.getStatusCode()== 1);
-		*/
+			  mvc.perform(MockMvcRequestBuilders.post("/student/holds").content(asJsonString(sto))
+	                .contentType(MediaType.APPLICATION_JSON)
+	                .accept(MediaType.APPLICATION_JSON))
+	                .andReturn().getResponse();
+	          
+	  assertEquals(200, response.getStatus());
+
 	  		
+	}
+	//Test to see if a student can have a hold removed
+	@Test
+	public void checkRemoveHold() throws Exception {
+		
+	  StudentDTO sto = new StudentDTO(TEST_STUDENT_ID, TEST_STUDENT_NAME, TEST_STUDENT_EMAIL, TEST_STATUS, TEST_STATUS_REMOVE_CODE);
+		
+	  MockHttpServletResponse response = 
+			  mvc.perform(MockMvcRequestBuilders.post("/student/holds").content(asJsonString(sto))
+	                .contentType(MediaType.APPLICATION_JSON)
+	                .accept(MediaType.APPLICATION_JSON))
+	                .andReturn().getResponse();
+	          
+	  assertEquals(200, response.getStatus());
+ 		
+	}
+	
+	//Test to see if a student can be added
+	@Test
+	public void checkAddStudent() throws Exception{
+		
+		StudentDTO sto = new StudentDTO(TEST_STUDENT_ID, TEST_STUDENT_NAME, TEST_STUDENT_EMAIL, TEST_STATUS, TEST_STATUS_REMOVE_CODE);
+		
+		MockHttpServletResponse response = 
+				  mvc.perform(MockMvcRequestBuilders.post("/student/add").content(asJsonString(sto))
+		                .contentType(MediaType.APPLICATION_JSON)
+		                .accept(MediaType.APPLICATION_JSON))
+		                .andReturn().getResponse();
+		          
+		  assertEquals(200, response.getStatus());
 	}
 	
 	private static String asJsonString(final Object obj) {
