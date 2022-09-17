@@ -18,6 +18,13 @@ public class StudentDTO {
 		this.status=null;
 	}
 	
+	public StudentDTO(int student_id, String name, String email, String status, int statusCode) {
+		this.student_id = student_id;
+		this.name=name;
+		this.email=email;
+		this.statusCode = statusCode;
+		this.status=status;
+	}
 	
 	public StudentDTO(String email, String name, int statusCode, String status) {
 		this.student_id = 0;
