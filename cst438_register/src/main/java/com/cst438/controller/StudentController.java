@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import com.cst438.domain.StudentRepository;
 
 
 @RestController
+@CrossOrigin(origins = {"http://localhost:3000"})
 public class StudentController {
 	
 	@Autowired
@@ -35,7 +37,7 @@ public class StudentController {
 	
 	*/
 	//Endpoint to test add a student
-	@PostMapping("/student/add")
+	@PostMapping("/student")
 	public StudentDTO getStudent(@RequestBody StudentDTO sto) {
 		Student student = studentRepository.findByEmail(sto.email); // (sto.email).get();
 		
@@ -50,6 +52,7 @@ public class StudentController {
 			student.setStatus(sto.status);
 			student.setStatusCode(sto.statusCode);
 			studentRepository.save(student);
+			sto.student_id = student.getStudent_id();//Professor mentioned adding this
 			//Student newStudent = new Student(sto.student_id, sto.name, sto.status, sto.statusCode);
 			return sto;
 		}
