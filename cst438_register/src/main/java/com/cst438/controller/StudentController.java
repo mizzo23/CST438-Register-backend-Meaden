@@ -35,7 +35,7 @@ public class StudentController {
 	
 	*/
 	//Endpoint to test add a student
-	@PostMapping("/student/add")
+	@PostMapping("/student")
 	public StudentDTO getStudent(@RequestBody StudentDTO sto) {
 		Student student = studentRepository.findByEmail(sto.email); // (sto.email).get();
 		
@@ -50,7 +50,8 @@ public class StudentController {
 			student.setStatus(sto.status);
 			student.setStatusCode(sto.statusCode);
 			studentRepository.save(student);
-			//Student newStudent = new Student(sto.student_id, sto.name, sto.status, sto.statusCode);
+			sto.student_id = student.getStudent_id();//Professor mentioned adding this
+			
 			return sto;
 		}
 		else {
