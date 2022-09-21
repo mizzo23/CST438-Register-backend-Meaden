@@ -53,7 +53,7 @@ public class StudentController {
 			student.setStatusCode(sto.statusCode);
 			studentRepository.save(student);
 			sto.student_id = student.getStudent_id();//Professor mentioned adding this
-			//Student newStudent = new Student(sto.student_id, sto.name, sto.status, sto.statusCode);
+
 			return sto;
 		}
 		else {
